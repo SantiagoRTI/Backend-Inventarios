@@ -1,0 +1,526 @@
+{
+	"info": {
+		"_postman_id": "inventarios-rti-collection",
+		"name": "Inventarios RTI API",
+		"description": "Colección de peticiones para probar la API REST de Inventarios RTI.\n\nIncluye endpoints para:\n- Autenticación JWT\n- Gestión de usuarios\n- Gestión de inventarios\n- Carga de activos desde Excel\n- Registro de activos por inspectores\n- Cruce de información\n- Generación de reportes en Excel",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8050/api",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Autenticación",
+			"item": [
+				{
+					"name": "Login Administrador",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('jwt_token', jsonData.token);",
+									"    pm.environment.set('jwt_token', jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"usuario\": \"admin@rti.com.co\",\n    \"contraseña\": \"Admin123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Autentica un usuario administrador y obtiene el token JWT"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Inspector",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('jwt_token', jsonData.token);",
+									"    pm.environment.set('jwt_token', jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"usuario\": \"carlos.jimenez@rti.com.co\",\n    \"contraseña\": \"Inspector123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Autentica un usuario inspector y obtiene el token JWT"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Usuarios",
+			"item": [
+				{
+					"name": "Listar Usuarios",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/usuarios",
+							"host": ["{{base_url}}"],
+							"path": ["usuarios"]
+						},
+						"description": "Obtiene todos los usuarios del sistema (solo administradores)"
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Usuario",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"María González\",\n    \"correo\": \"maria.gonzalez@rti.com.co\",\n    \"contraseña\": \"Maria123!\",\n    \"rol\": \"Inspector\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/usuarios",
+							"host": ["{{base_url}}"],
+							"path": ["usuarios"]
+						},
+						"description": "Crea un nuevo usuario en el sistema"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Usuario por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/usuarios/1",
+							"host": ["{{base_url}}"],
+							"path": ["usuarios", "1"]
+						},
+						"description": "Obtiene un usuario específico por su ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Usuario",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"María González Actualizada\",\n    \"correo\": \"maria.gonzalez@rti.com.co\",\n    \"rol\": \"Inspector\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/usuarios/3",
+							"host": ["{{base_url}}"],
+							"path": ["usuarios", "3"]
+						},
+						"description": "Actualiza los datos de un usuario existente"
+					},
+					"response": []
+				},
+				{
+					"name": "Cambiar Contraseña",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"contrasenaActual\": \"Inspector123!\",\n    \"contrasenaNueva\": \"NuevaContrasena123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/usuarios/2/cambiar-contrasena",
+							"host": ["{{base_url}}"],
+							"path": ["usuarios", "2", "cambiar-contrasena"]
+						},
+						"description": "Cambia la contraseña de un usuario (requiere contraseña actual para validación)"
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Usuario",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/usuarios/3",
+							"host": ["{{base_url}}"],
+							"path": ["usuarios", "3"]
+						},
+						"description": "Desactiva un usuario del sistema"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Inventarios",
+			"item": [
+				{
+					"name": "Listar Inventarios",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/inventarios",
+							"host": ["{{base_url}}"],
+							"path": ["inventarios"]
+						},
+						"description": "Obtiene todos los inventarios"
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Inventario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('inventario_id', jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Inventario Bulevar Niza 2026\",\n    \"codigo\": \"INV-BN-2026\",\n    \"estado\": \"Ejecucion\",\n    \"inspectorId\": 2,\n    \"centroCostosId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/inventarios",
+							"host": ["{{base_url}}"],
+							"path": ["inventarios"]
+						},
+						"description": "Crea un nuevo inventario"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Inventario por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/inventarios/{{inventario_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["inventarios", "{{inventario_id}}"]
+						},
+						"description": "Obtiene un inventario específico"
+					},
+					"response": []
+				},
+				{
+					"name": "Validar Inventario (Inspector)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/inventarios/validar/INV-BN-2026",
+							"host": ["{{base_url}}"],
+							"path": ["inventarios", "validar", "INV-BN-2026"]
+						},
+						"description": "Valida que un inventario existe (usado por inspectores)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Carga Excel",
+			"item": [
+				{
+					"name": "Descargar Plantilla Excel",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/inventarios/{{inventario_id}}/plantilla",
+							"host": ["{{base_url}}"],
+							"path": ["inventarios", "{{inventario_id}}", "plantilla"]
+						},
+						"description": "Descarga la plantilla Excel para carga de activos"
+					},
+					"response": []
+				},
+				{
+					"name": "Cargar Excel de Activos",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "archivo",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/inventarios/{{inventario_id}}/cargar-excel",
+							"host": ["{{base_url}}"],
+							"path": ["inventarios", "{{inventario_id}}", "cargar-excel"]
+						},
+						"description": "Carga activos desde archivo Excel (origen administrador)"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Activos Administrador",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/inventarios/{{inventario_id}}/activos-administrador",
+							"host": ["{{base_url}}"],
+							"path": ["inventarios", "{{inventario_id}}", "activos-administrador"]
+						},
+						"description": "Consulta activos cargados por el administrador"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. Activos (Inspector)",
+			"item": [
+				{
+					"name": "Registrar Activo",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"inventarioId\": {{inventario_id}},\n    \"idActivo\": \"ACT-001\",\n    \"etiqueta\": \"7501000111800\",\n    \"descripcion\": \"Portátil Lenovo ThinkPad\",\n    \"marca\": \"Lenovo\",\n    \"serial\": \"ABC123456\",\n    \"modelo\": \"ThinkPad X1\",\n    \"responsable\": \"Juan Pérez\",\n    \"ciudad\": \"Bogotá\",\n    \"estado\": \"Bueno\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/activos",
+							"host": ["{{base_url}}"],
+							"path": ["activos"]
+						},
+						"description": "Registra un nuevo activo durante la inspección"
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar Activo por Código",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/activos/ACT-001",
+							"host": ["{{base_url}}"],
+							"path": ["activos", "ACT-001"]
+						},
+						"description": "Busca un activo por su código"
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar Activo por Barcode",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/activos/barcode/7501000111800",
+							"host": ["{{base_url}}"],
+							"path": ["activos", "barcode", "7501000111800"]
+						},
+						"description": "Busca un activo por su código de barras"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Activos Inspector",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/inventarios/{{inventario_id}}/activos-inspector",
+							"host": ["{{base_url}}"],
+							"path": ["inventarios", "{{inventario_id}}", "activos-inspector"]
+						},
+						"description": "Consulta activos registrados por el inspector"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "6. Cruce de Información",
+			"item": [
+				{
+					"name": "Ejecutar Cruce",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/inventarios/{{inventario_id}}/cruce",
+							"host": ["{{base_url}}"],
+							"path": ["inventarios", "{{inventario_id}}", "cruce"]
+						},
+						"description": "Ejecuta el cruce de información entre activos del administrador e inspector"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Resultado del Cruce",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/inventarios/{{inventario_id}}/activos-cruzados",
+							"host": ["{{base_url}}"],
+							"path": ["inventarios", "{{inventario_id}}", "activos-cruzados"]
+						},
+						"description": "Consulta el último resultado del cruce"
+					},
+					"response": []
+				},
+				{
+					"name": "Descargar Excel del Cruce",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/inventarios/{{inventario_id}}/cruce/excel",
+							"host": ["{{base_url}}"],
+							"path": ["inventarios", "{{inventario_id}}", "cruce", "excel"]
+						},
+						"description": "Descarga Excel con el resultado del cruce"
+					},
+					"response": []
+				},
+				{
+					"name": "Descargar Excel Activos Administrador",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/inventarios/{{inventario_id}}/activos-administrador/excel",
+							"host": ["{{base_url}}"],
+							"path": ["inventarios", "{{inventario_id}}", "activos-administrador", "excel"]
+						},
+						"description": "Descarga Excel solo con activos del administrador"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "7. Centros de Costos",
+			"item": [
+				{
+					"name": "Obtener Centro por Código",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/centros/014",
+							"host": ["{{base_url}}"],
+							"path": ["centros", "014"]
+						},
+						"description": "Busca un centro de costos por su código"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
