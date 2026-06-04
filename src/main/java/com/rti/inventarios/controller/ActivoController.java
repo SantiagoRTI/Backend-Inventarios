@@ -28,29 +28,32 @@ public class ActivoController {
     private ActivoService activoService;
 
     /**
-     * Busca un activo por su código/ID de activo.
-     * Útil para verificar si un activo ya fue registrado.
+     * Busca un activo por su código/ID de activo cargado por el administrador.
+     * Retorna activos que fueron subidos desde el Excel por el administrador
+     * para que el inspector pueda consultarlos durante la inspección.
      * 
      * @param codigo Código del activo
      * @return Activo encontrado
      */
     @GetMapping("/{codigo}")
     @Operation(summary = "Buscar activo por código", 
-               description = "Busca un activo registrado por el inspector usando su código")
+               description = "Busca un activo cargado por el administrador usando su código")
     public ResponseEntity<ActivoResponse> buscarPorCodigo(@PathVariable String codigo) {
         ActivoResponse activo = activoService.buscarPorIdActivo(codigo);
         return ResponseEntity.ok(activo);
     }
 
     /**
-     * Busca un activo por su código de barras (etiqueta).
+     * Busca un activo por su código de barras (etiqueta) cargado por el administrador.
+     * Retorna activos que fueron subidos desde el Excel por el administrador
+     * para que el inspector pueda consultarlos durante la inspección.
      * 
      * @param barcode Código de barras del activo
      * @return Activo encontrado
      */
     @GetMapping("/barcode/{barcode}")
     @Operation(summary = "Buscar activo por barcode", 
-               description = "Busca un activo por su código de barras o etiqueta")
+               description = "Busca un activo cargado por el administrador por su código de barras o etiqueta")
     public ResponseEntity<ActivoResponse> buscarPorBarcode(@PathVariable String barcode) {
         ActivoResponse activo = activoService.buscarPorBarcode(barcode);
         return ResponseEntity.ok(activo);

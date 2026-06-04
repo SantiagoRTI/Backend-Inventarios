@@ -110,12 +110,6 @@ public class InventarioService {
             inventario.setInspector(inspector);
         }
 
-        if (request.getCentroCostosId() != null) {
-            CentroCostos centroCostos = centroCostosRepository.findById(request.getCentroCostosId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Centro de costos no encontrado con ID: " + request.getCentroCostosId()));
-            inventario.setCentroCostos(centroCostos);
-        }
-
         inventario = inventarioRepository.save(inventario);
         logger.info("Inventario creado exitosamente con ID: {}", inventario.getId());
 
@@ -155,12 +149,6 @@ public class InventarioService {
                 throw new BusinessException("El usuario asignado debe tener rol de Inspector");
             }
             inventario.setInspector(inspector);
-        }
-
-        if (request.getCentroCostosId() != null) {
-            CentroCostos centroCostos = centroCostosRepository.findById(request.getCentroCostosId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Centro de costos no encontrado con ID: " + request.getCentroCostosId()));
-            inventario.setCentroCostos(centroCostos);
         }
 
         inventario = inventarioRepository.save(inventario);

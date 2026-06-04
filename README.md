@@ -166,8 +166,6 @@ Variables de entorno recomendadas:
 ```txt
 DB_HOST=localhost
 DB_PORT=3306
-DB_NAME=inventarios_rti
-DB_USER=inventarios_user
 
 JWT_EXPIRATION_MS=86400000
 ```
@@ -196,7 +194,6 @@ JWT_EXPIRATION_MS=86400000
 | codigo       | VARCHAR UK| Código de inventario     |
 | estado       | VARCHAR   | Ejecución, Finalizado…   |
 | inspector_id | FK Usuario| Rol INSPECTOR            |
-| centro_costos_id | FK  | Opcional                 |
 
 ### Activo (por origen)
 
@@ -444,6 +441,10 @@ GET    /api/inventarios/validar/{codigo}    # Inspector — inventario asignado
 }
 ```
 
+**PUT body:** (mismo formato que POST)
+
+Los servicios PUT y DELETE están implementados para permitir la edición y eliminación de inventarios.
+
 ---
 
 ### Carga Excel (administrador)
@@ -484,11 +485,21 @@ ID_ACTIVO, ETIQUETA, DESCRIPCION, MARCA, SERIAL, MODELO, RESPONSABLE, CIUDAD, ES
 ### Activos (inspector)
 
 ```http
-GET  /api/activos/{codigo}
-GET  /api/activos/barcode/{barcode}
+GET  /api/activos/{codigo}              # Busca activos del administrador por código
+GET  /api/activos/barcode/{barcode}     # Busca activos del administrador por barcode
 POST /api/activos
 PUT  /api/activos/{id}
 ```
+
+**GET /api/activos/{codigo}:**
+
+Busca y retorna un activo cargado por el administrador desde el Excel usando su código de activo.
+Útil para que el inspector pueda consultar la información del activo registrada previamente.
+
+**GET /api/activos/barcode/{barcode}:**
+
+Busca y retorna un activo cargado por el administrador desde el Excel usando su código de barras (etiqueta).
+Útil para escanear códigos de barras durante la inspección.
 
 **POST body:**
 
@@ -503,26 +514,6 @@ PUT  /api/activos/{id}
   "modelo": "P2419",
   "responsable": "Pedro",
   "ciudad": "Bogotá"
-}
-```
-
----
-
-### Centros de costos
-
-```http
-GET /api/centros/{codigo}
-```
-
-**Response 200:**
-
-```json
-{
-  "id": "014",
-  "codigo": "014",
-  "nombre": "Bulevar Niza",
-  "ciudad": "Bogotá",
-  "direccion": "Calle 123 #45-67"
 }
 ```
 

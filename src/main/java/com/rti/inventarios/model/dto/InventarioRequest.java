@@ -35,9 +35,4 @@ public class InventarioRequest {
      * ID del inspector asignado al inventario
      */
     private Long inspectorId;
-
-    /**
-     * ID del centro de costos asociado
-     */
-    private Long centroCostosId;
 }

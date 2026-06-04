@@ -34,7 +34,8 @@ public class ActivoService {
     private InventarioRepository inventarioRepository;
 
     /**
-     * Busca un activo por su ID de activo dentro de un inventario (origen inspector)
+     * Busca un activo por su ID de activo cargado por el administrador.
+     * Este servicio retorna activos que fueron subidos desde el Excel por el administrador.
      * 
      * @param idActivo Código del activo
      * @return Activo encontrado
@@ -45,7 +46,7 @@ public class ActivoService {
         
         Optional<Activo> activoOpt = activoRepository.findAll().stream()
                 .filter(a -> a.getIdActivo().equals(idActivo) && 
-                             a.getOrigen().equals(OrigenActivo.INSPECTOR))
+                             a.getOrigen().equals(OrigenActivo.ADMINISTRADOR))
                 .findFirst();
         
         if (activoOpt.isEmpty()) {
@@ -56,7 +57,8 @@ public class ActivoService {
     }
 
     /**
-     * Busca un activo por su código de barras (etiqueta)
+     * Busca un activo por su código de barras (etiqueta) cargado por el administrador.
+     * Este servicio retorna activos que fueron subidos desde el Excel por el administrador.
      * 
      * @param barcode Código de barras del activo
      * @return Activo encontrado
@@ -67,7 +69,7 @@ public class ActivoService {
         
         Optional<Activo> activoOpt = activoRepository.findAll().stream()
                 .filter(a -> barcode.equals(a.getEtiqueta()) && 
-                             a.getOrigen().equals(OrigenActivo.INSPECTOR))
+                             a.getOrigen().equals(OrigenActivo.ADMINISTRADOR))
                 .findFirst();
         
         if (activoOpt.isEmpty()) {
