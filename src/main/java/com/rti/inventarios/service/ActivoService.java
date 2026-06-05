@@ -80,14 +80,15 @@ public class ActivoService {
     }
 
     /**
-     * Registra un nuevo activo (origen inspector)
+     * Registra un nuevo activo o actualiza uno existente (origen inspector).
+     * Si el activo ya existe, actualiza sus datos en lugar de crear uno nuevo.
      * 
      * @param request Datos del activo a registrar
-     * @return Activo registrado
+     * @return Activo registrado o actualizado
      */
     @Transactional
     public ActivoResponse registrar(ActivoRequest request) {
-        logger.info("Registrando nuevo activo con ID: {} en inventario: {}", 
+        logger.info("Registrando activo con ID: {} en inventario: {}", 
                     request.getIdActivo(), request.getInventarioId());
 
         Inventario inventario = inventarioRepository.findById(request.getInventarioId())
@@ -101,27 +102,40 @@ public class ActivoService {
                 OrigenActivo.INSPECTOR
         );
 
+        Activo activo;
+        
         if (existente.isPresent()) {
-            throw new BusinessException("Ya existe un activo registrado con ID: " + request.getIdActivo() +
-                                        " en este inventario");
+            // Actualizar el activo existente
+            activo = existente.get();
+            activo.setEtiqueta(request.getEtiqueta());
+            activo.setDescripcion(request.getDescripcion());
+            activo.setMarca(request.getMarca());
+            activo.setSerial(request.getSerial());
+            activo.setModelo(request.getModelo());
+            activo.setResponsable(request.getResponsable());
+            activo.setCiudad(request.getCiudad());
+            activo.setEstado(request.getEstado());
+            logger.info("Actualizando activo existente con ID: {}", activo.getIdActivo());
+        } else {
+            // Crear nuevo activo
+            activo = Activo.builder()
+                    .inventario(inventario)
+                    .idActivo(request.getIdActivo())
+                    .etiqueta(request.getEtiqueta())
+                    .descripcion(request.getDescripcion())
+                    .marca(request.getMarca())
+                    .serial(request.getSerial())
+                    .modelo(request.getModelo())
+                    .responsable(request.getResponsable())
+                    .ciudad(request.getCiudad())
+                    .estado(request.getEstado())
+                    .origen(OrigenActivo.INSPECTOR)
+                    .build();
+            logger.info("Creando nuevo activo con ID: {}", activo.getIdActivo());
         }
 
-        Activo activo = Activo.builder()
-                .inventario(inventario)
-                .idActivo(request.getIdActivo())
-                .etiqueta(request.getEtiqueta())
-                .descripcion(request.getDescripcion())
-                .marca(request.getMarca())
-                .serial(request.getSerial())
-                .modelo(request.getModelo())
-                .responsable(request.getResponsable())
-                .ciudad(request.getCiudad())
-                .estado(request.getEstado())
-                .origen(OrigenActivo.INSPECTOR)
-                .build();
-
         activo = activoRepository.save(activo);
-        logger.info("Activo registrado exitosamente con ID interno: {}", activo.getId());
+        logger.info("Activo guardado exitosamente con ID interno: {}", activo.getId());
 
         return convertirAResponse(activo);
     }

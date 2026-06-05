@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Servicio para la carga masiva de activos desde archivos Excel.
@@ -133,9 +134,34 @@ public class ExcelCargaService {
 
                 try {
                     Activo activo = procesarFila(row, inventario);
-                    activoRepository.save(activo);
+                    
+                    // Verificar si el activo ya existe en este inventario (origen ADMINISTRADOR)
+                    Optional<Activo> activoExistente = activoRepository.findByInventarioIdAndIdActivoAndOrigen(
+                            inventario.getId(),
+                            activo.getIdActivo(),
+                            OrigenActivo.ADMINISTRADOR
+                    );
+                    
+                    if (activoExistente.isPresent()) {
+                        // Actualizar el activo existente
+                        Activo existente = activoExistente.get();
+                        existente.setEtiqueta(activo.getEtiqueta());
+                        existente.setDescripcion(activo.getDescripcion());
+                        existente.setMarca(activo.getMarca());
+                        existente.setSerial(activo.getSerial());
+                        existente.setModelo(activo.getModelo());
+                        existente.setResponsable(activo.getResponsable());
+                        existente.setCiudad(activo.getCiudad());
+                        existente.setEstado(activo.getEstado());
+                        activoRepository.save(existente);
+                        logger.debug("Activo actualizado: {}", activo.getIdActivo());
+                    } else {
+                        // Crear nuevo activo
+                        activoRepository.save(activo);
+                        logger.debug("Activo creado: {}", activo.getIdActivo());
+                    }
+                    
                     registrosGuardados++;
-                    logger.debug("Activo guardado: {}", activo.getIdActivo());
                 } catch (Exception e) {
                     String error = "Fila " + (i + 1) + ": " + e.getMessage();
                     errores.add(error);

@@ -257,7 +257,7 @@ public class InventarioController {
      * @return Resultado del cruce
      */
     @PostMapping("/{id}/cruce")
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'INSPECTOR')")
     @Operation(summary = "Ejecutar cruce de inventario", 
                description = "Compara activos del administrador vs inspector y genera resultado")
     public ResponseEntity<CruceResponse> ejecutarCruce(@PathVariable Long id) {
@@ -281,12 +281,13 @@ public class InventarioController {
 
     /**
      * Descarga el resultado del cruce en formato Excel.
+     * Accesible tanto para administradores como para inspectores.
      * 
      * @param id ID del inventario
      * @return Archivo Excel con el resultado del cruce
      */
     @GetMapping("/{id}/cruce/excel")
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'INSPECTOR')")
     @Operation(summary = "Descargar Excel del cruce", 
                description = "Genera y descarga Excel con el resultado del cruce")
     public ResponseEntity<Resource> descargarExcelCruce(@PathVariable Long id) throws IOException {

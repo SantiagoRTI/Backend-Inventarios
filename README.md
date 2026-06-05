@@ -244,12 +244,12 @@ Flujo de negocio que debe implementar el backend:
 
 ### Ejecución del cruce
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| POST | `/api/inventarios/{id}/cruce` | Ejecuta comparación |
-| GET | `/api/inventarios/{id}/activos-cruzados` | Último resultado JSON |
-| GET | `/api/inventarios/{id}/cruce/excel` | **Descarga Excel** |
-| GET | `/api/inventarios/{id}/activos-administrador/excel` | Excel solo admin |
+| Método | Endpoint | Descripción | Permisos |
+|--------|----------|-------------|----------|
+| POST | `/api/inventarios/{id}/cruce` | Ejecuta comparación | Administrador |
+| GET | `/api/inventarios/{id}/activos-cruzados` | Último resultado JSON | Admin/Inspector |
+| GET | `/api/inventarios/{id}/cruce/excel` | **Descarga Excel** | Admin/Inspector |
+| GET | `/api/inventarios/{id}/activos-administrador/excel` | Excel solo admin | Administrador |
 
 ---
 
@@ -454,6 +454,11 @@ GET  /api/inventarios/{id}/plantilla
 POST /api/inventarios/{id}/cargar-excel     # multipart: archivo
 ```
 
+**Comportamiento de carga:**
+- Si un activo ya existe en el inventario (mismo `idActivo`), se actualizan sus datos
+- Si es un activo nuevo, se crea un nuevo registro
+- Permite subir múltiples tandas de activos al mismo inventario sin errores
+
 **POST Response 200:**
 
 ```json
@@ -517,6 +522,11 @@ Busca y retorna un activo cargado por el administrador desde el Excel usando su 
 }
 ```
 
+**Comportamiento de POST activos:**
+- Si el activo ya existe en el inventario (mismo `idActivo`), actualiza sus datos
+- Si es nuevo, crea un registro con origen `INSPECTOR`
+- Permite re-registrar activos sin generar errores
+
 ---
 
 ### Reportes
@@ -543,7 +553,7 @@ GET /api/reportes/{centro}?inventarioId=1
 | Rol           | Permisos principales |
 |---------------|----------------------|
 | Administrador | CRUD usuarios, CRUD inventarios, carga Excel, cruce, descargas Excel |
-| Inspector     | Validar inventario asignado, consultar/registrar activos, reporte auditoría |
+| Inspector     | Validar inventario asignado, consultar/registrar activos, descargar Excel de cruce, reporte auditoría |
 
 Implementar con `@PreAuthorize` o reglas en `SecurityFilterChain`.
 

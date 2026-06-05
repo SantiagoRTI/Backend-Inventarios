@@ -60,14 +60,15 @@ public class ActivoController {
     }
 
     /**
-     * Registra un nuevo activo durante la inspección.
+     * Registra un nuevo activo o actualiza uno existente durante la inspección.
+     * Si el activo ya existe, actualiza sus datos.
      * 
      * @param request Datos del activo a registrar
-     * @return Activo registrado con código 201 (Created)
+     * @return Activo registrado o actualizado con código 201 (Created)
      */
     @PostMapping
     @Operation(summary = "Registrar activo", 
-               description = "Registra un nuevo activo durante la inspección")
+               description = "Registra un nuevo activo o actualiza uno existente durante la inspección")
     public ResponseEntity<ActivoResponse> registrar(@Valid @RequestBody ActivoRequest request) {
         ActivoResponse activo = activoService.registrar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(activo);
